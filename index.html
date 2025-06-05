@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Over Store - Consultas Online</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="icon" href="https://i.ibb.co/k2YvcFqj/IMG-8638.jpg" type="image/png"> 
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Exo+2:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Variáveis CSS para facilitar a manutenção das cores */
+    :root {
+      --bg: #121212; /* Cor de fundo principal */
+      --accent: #00ff88; /* Cor de destaque (verde neon) */
+      --text: #fff; /* Cor do texto principal */
+      --shadow: rgba(0, 255, 136, 0.4); /* Cor da sombra e brilho com opacidade */
+      --card-bg: #1e1e1e; /* Fundo dos cards */
+      --dark-card-bg: #282828; /* Fundo mais escuro para planos */
+    }
+
+    /* Estilos globais para o corpo da página */
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif; /* Fonte para o corpo do texto */
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Garante que o footer fique no final da página */
+    }
+
+    /* Estilo para o cabeçalho principal do site */
+    .main-header {
+      text-align: center;
+      padding: 30px 20px;
+      background-color: #0d0d0d;
+      border-bottom: 2px solid var(--accent);
+      box-shadow: 0 4px 20px var(--shadow); /* Sombra para profundidade */
+      margin-bottom: 20px;
+    }
+
+    .main-header h1 {
+      color: var(--accent);
+      font-family: 'Exo 2', sans-serif; /* Fonte para o título principal */
+      font-size: 2.8rem;
+      margin: 0;
+      text-shadow: 0 0 15px var(--shadow); /* Efeito de brilho no título */
+      letter-spacing: 2px;
+    }
+
+    .main-header p {
+      color: var(--text);
+      font-size: 1.1rem;
+      margin-top: 10px;
+      opacity: 0.8; /* Leve transparência para o subtítulo */
+    }
+
+    /* Estilo para o menu de navegação */
+    .menu {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap; /* Permite que os botões quebrem a linha em telas pequenas */
+      padding: 15px 20px;
+      gap: 12px; /* Espaçamento entre os botões */
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      max-width: 900px;
+      margin: 0 auto 30px auto; /* Centraliza o menu e adiciona margem inferior */
+      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+    }
+
+    .menu button {
+      background-color: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 14px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease; /* Transição suave para efeitos de hover */
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      min-width: 140px;
+      text-transform: uppercase;
+    }
+
+    .menu button:hover {
+      background-color: var(--accent);
+      color: var(--bg);
+      transform: translateY(-2px); /* Efeito de leve elevação ao passar o mouse */
+      box-shadow: 0 5px 15px var(--shadow);
+    }
+
+    .menu button.active {
+      background-color: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 18px var(--shadow); /* Brilho mais intenso para o botão ativo */
+      border-color: var(--accent);
+    }
+
+    /* Estilo para o card de boas-vindas/informações iniciais */
+    .info-card {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.15);
+      font-size: 1.1rem;
+      animation: fadeIn 0.8s ease forwards; /* Animação de entrada */
+    }
+
+    .info-card p {
+      margin-bottom: 0;
+    }
+
+    /* Estilo para os cards de resultado das consultas */
+    .consulta-card {
+      display: none; /* Escondido por padrão, exibido via JS */
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      animation: fadeIn 0.8s ease forwards; /* Animação de entrada mais suave */
+      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.15);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      position: relative; /* Para o pseudo-elemento da borda lateral */
+    }
+
+    /* Borda lateral verde nos cards de consulta */
+    .consulta-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: var(--accent);
+      border-radius: 12px 0 0 12px; /* Apenas no canto superior e inferior esquerdo */
+    }
+
+    /* Animação de fade-in para elementos que aparecem */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .consulta-card h3 {
+      color: var(--accent);
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1.6rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px dashed rgba(0, 255, 136, 0.3); /* Linha divisória sutil */
+      padding-bottom: 10px;
+    }
+
+    .consulta-card p {
+      margin: 8px 0; /* Espaçamento entre as linhas de dados */
+    }
+
+    /* Estilo para o grupo de botões dentro dos cards de consulta */
+    .botoes {
+      margin-top: 25px;
+      display: flex;
+      gap: 15px; /* Espaçamento entre os botões */
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .botoes button {
+      flex: 1; /* Faz os botões ocuparem espaço igualmente */
+      max-width: 180px; /* Limita o tamanho máximo dos botões */
+      background-color: var(--accent);
+      color: var(--bg);
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 255, 136, 0.4);
+    }
+
+    .botoes button:hover {
+      background-color: #00e676; /* Um tom de verde um pouco mais escuro no hover */
+      transform: translateY(-2px); /* Efeito de leve elevação */
+      box-shadow: 0 6px 15px rgba(0, 255, 136, 0.6);
+    }
+
+    /* --- Seção de Testemunhos --- */
+    .testimonials {
+      background-color: var(--dark-card-bg);
+      padding: 50px 20px;
+      text-align: center;
+      margin-top: 40px;
+      border-top: 2px solid var(--accent);
+      border-bottom: 2px solid var(--accent);
+      box-shadow: 0 4px 20px var(--shadow), 0 -4px 20px var(--shadow);
+    }
+
+    .testimonials h2 {
+      color: var(--accent);
+      font-family: 'Exo 2', sans-serif;
+      font-size: 2.2rem;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px var(--shadow);
+    }
+
+    .testimonial-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background-color: var(--card-bg);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 12px;
+      padding: 25px;
+      width: 300px;
+      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: left;
+      position: relative; /* Para o ícone de aspas */
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+    }
+
+    .testimonial-card p {
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 15px;
+      position: relative;
+      padding-left: 25px;
+    }
+
+    .testimonial-card p::before {
+        content: '“'; /* Aspas de abertura */
+        font-size: 3em;
+        color: rgba(0, 255, 136, 0.5);
+        position: absolute;
+        left: 0;
+        top: -10px;
+        line-height: 1;
+    }
+
+    .testimonial-card span {
+      display: block;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: right;
+      margin-top: 10px;
+    }
+    /* --- Fim da Seção de Testemunhos --- */
+
+    /* Estilo para a seção de planos */
+    .planos {
+      background-color: var(--card-bg);
+      padding: 50px 20px;
+      text-align: center;
+      margin-top: 40px;
+      border-top: 2px solid var(--accent); /* Borda superior de destaque */
+      box-shadow: 0 -4px 20px var(--shadow); /* Sombra para o topo da seção */
+    }
+
+    .planos h2 {
+      color: var(--accent);
+      font-family: 'Exo 2', sans-serif;
+      font-size: 2.2rem;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px var(--shadow);
+    }
+
+    .planos-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px; /* Espaçamento entre os planos */
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .plano {
+      background-color: var(--dark-card-bg);
+      border: 2px solid var(--accent);
+      border-radius: 15px;
+      padding: 30px 25px;
+      width: 280px;
+      box-shadow: 0 0 15px var(--shadow), 0 0 5px rgba(0, 255, 136, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* Espaça o conteúdo do plano */
+      min-height: 320px; /* Altura mínima para alinhar visualmente os cards */
+      position: relative; /* Para o selo de destaque */
+    }
+
+    /* Destaque para o plano mais popular */
+    .plano.popular {
+        border-color: #ffd700; /* Borda dourada */
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.2);
+        transform: scale(1.05); /* Levemente maior */
+        z-index: 1; /* Para ficar acima dos outros */
+    }
+
+    .plano.popular:hover {
+      transform: translateY(-10px) scale(1.08); /* Mais destaque no hover */
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .plano.popular h3 {
+        color: #ffd700; /* Título dourado */
+        text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+    }
+
+    .plano.popular .price {
+        color: #ffd700; /* Preço dourado */
+    }
+
+    .plano.popular .ribbon {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        background-color: #ffd700;
+        color: #000;
+        padding: 5px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        transform: rotate(15deg);
+    }
+
+
+    .plano:hover {
+      transform: translateY(-8px); /* Efeito de elevação mais pronunciado */
+      box-shadow: 0 0 25px var(--shadow), 0 0 10px rgba(0, 255, 136, 0.4);
+    }
+
+    .plano h3 {
+      color: #58d68d; /* Um tom de verde ligeiramente diferente para os títulos dos planos */
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1.8rem;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+    }
+
+    .plano .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    .plano ul {
+      list-style: none; /* Remove os marcadores padrão da lista */
+      padding: 0;
+      margin: 15px 0 20px 0;
+      text-align: left;
+      flex-grow: 1; /* Faz a lista ocupar o espaço restante */
+    }
+
+    .plano ul li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: var(--text);
+      opacity: 0.9;
+      position: relative;
+      padding-left: 20px; /* Espaço para o ícone customizado de checkmark */
+    }
+
+    .plano ul li::before {
+      content: '✓'; /* Ícone de checkmark customizado */
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    .plano a {
+      display: block; /* Ocupa a largura total do plano */
+      margin-top: 20px;
+      padding: 14px 20px;
+      background-color: var(--accent);
+      color: var(--bg);
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 5px 15px rgba(0, 255, 136, 0.5);
+    }
+
+    .plano a:hover {
+      background-color: #00e676; /* Cor de hover para o botão de comprar */
+      color: #080808;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 255, 136, 0.7);
+    }
+
+    /* Estilo para o card da imagem de destaque */
+    .imagem-card {
+      text-align: center;
+      margin: 50px auto;
+      max-width: 800px;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 6px 30px var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .imagem-card:hover {
+      transform: scale(1.02); /* Leve zoom ao passar o mouse */
+      box-shadow: 0 10px 40px var(--shadow);
+    }
+
+    .imagem-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 3px solid var(--accent); /* Borda em volta da imagem */
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Estilo para o rodapé */
+    .footer {
+      text-align: center;
+      padding: 25px;
+      background-color: #0f0f0f;
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: auto; /* Empurra o footer para o final da página */
+      border-top: 1px solid rgba(0, 255, 136, 0.1);
+    }
+
+    /* --- Seção Sobre Nós --- */
+    .about-us {
+        background-color: var(--dark-card-bg);
+        padding: 50px 20px;
+        text-align: center;
+        margin-top: 40px;
+        border-top: 2px solid var(--accent);
+        box-shadow: 0 -4px 20px var(--shadow);
+    }
+
+    .about-us h2 {
+        color: var(--accent);
+        font-family: 'Exo 2', sans-serif;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        text-shadow: 0 0 10px var(--shadow);
+    }
+
+    .about-us-content {
+        max-width: 800px;
+        margin: 0 auto;
+        color: var(--text);
+        text-align: left;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .about-us-content p {
+        margin-bottom: 20px;
+    }
+
+    .about-us-content ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    .about-us-content ul li {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
+    .about-us-content ul li::before {
+        content: '★'; /* Ícone de estrela para os pontos chave */
+        color: #ffd700; /* Dourado para o ícone */
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+
+    /* --- Seção de FAQ --- */
+    .faq {
+        background-color: var(--card-bg);
+        padding: 50px 20px;
+        text-align: center;
+        margin-top: 40px;
+        border-top: 2px solid var(--accent);
+        box-shadow: 0 -4px 20px var(--shadow);
+    }
+
+    .faq h2 {
+        color: var(--accent);
+        font-family: 'Exo 2', sans-serif;
+        font-size: 2.2rem;
+        margin-bottom: 40px;
+        text-shadow: 0 0 10px var(--shadow);
+    }
+
+    .faq-item {
+        max-width: 800px;
+        margin: 0 auto 20px auto;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: var(--dark-card-bg);
+        box-shadow: 0 2px 10px rgba(0, 255, 136, 0.05);
+    }
+
+    .faq-question {
+        padding: 15px 20px;
+        background-color: #222;
+        color: var(--accent);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .faq-question:hover {
+        background-color: #2e2e2e;
+    }
+
+    .faq-answer {
+        padding: 15px 20px;
+        color: var(--text);
+        text-align: left;
+        display: none; /* Escondido por padrão */
+        line-height: 1.7;
+        font-size: 0.95rem;
+        border-top: 1px solid rgba(0, 255, 136, 0.1);
+    }
+
+    .faq-question::after {
+        content: '+';
+        font-size: 1.5em;
+        transition: transform 0.3s ease;
+    }
+
+    .faq-question.active::after {
+        content: '-';
+        transform: rotate(180deg);
+    }
+
+    /* --- Botão Flutuante do Telegram --- */
+    .telegram-float {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #0088cc; /* Cor do Telegram */
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 30px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000; /* Garante que fique acima de outros elementos */
+        transition: transform 0.3s ease;
+    }
+    .telegram-float:hover {
+        transform: scale(1.1);
+    }
+    .telegram-float img {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* Media Queries para Responsividade em diferentes tamanhos de tela */
+    @media (max-width: 768px) {
+      .main-header h1 {
+        font-size: 2.2rem;
+      }
+      .main-header p {
+        font-size: 1rem;
+      }
+      .menu {
+        flex-direction: column; /* Botões do menu empilhados em telas menores */
+        align-items: center;
+        padding: 15px;
+        gap: 10px;
+      }
+      .menu button {
+        width: 80%; /* Botões do menu ocupam mais largura */
+        min-width: unset;
+      }
+      .consulta-card, .info-card {
+        margin: 20px 15px;
+        padding: 25px;
+        width: auto; /* Ajusta largura automaticamente com as margens */
+      }
+      .botoes {
+        flex-direction: column; /* Botões de ação empilhados */
+        gap: 10px;
+      }
+      .botoes button {
+        max-width: 100%;
+      }
+      .planos h2, .testimonials h2, .about-us h2, .faq h2 {
+        font-size: 1.8rem;
+      }
+      .planos-container, .testimonial-container {
+        flex-direction: column; /* Planos e depoimentos empilhados */
+        align-items: center;
+      }
+      .plano, .testimonial-card {
+        width: 90%;
+        max-width: 320px;
+      }
+      .plano.popular {
+        transform: scale(1.03); /* Menos zoom em mobile */
+      }
+      .plano.popular:hover {
+        transform: translateY(-5px) scale(1.05);
+      }
+      /* Ajusta o botão flutuante para telas menores */
+      .telegram-float {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+      }
+      .telegram-float img {
+        width: 30px;
+        height: 30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-header h1 {
+        font-size: 1.8rem;
+      }
+      .main-header p {
+        font-size: 0.9rem;
+      }
+      .menu button {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+      }
+      .consulta-card h3 {
+        font-size: 1.4rem;
+      }
+      .consulta-card p {
+        font-size: 0.95rem;
+      }
+      .testimonial-card p {
+          padding-left: 20px;
+      }
+      .testimonial-card p::before {
+          font-size: 2.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <h1>OVER STORE</h1>
+    <p>Consultas Online de Alta Qualidade e Confiabilidade</p>
+  </header>
+
+  <div class="menu" role="navigation">
+    <button onclick="mostrarConsulta('consulta-cpf')" aria-label="Mostrar Consulta CPF">Consulta CPF</button>
+    <button onclick="mostrarConsulta('consulta-telefone')" aria-label="Mostrar Consulta Telefone">Consulta Telefone</button>
+    <button onclick="mostrarConsulta('consulta-cnh')" aria-label="Mostrar Consulta CNH">Consulta CNH</button>
+    <button onclick="document.getElementById('about-us').scrollIntoView({behavior: 'smooth'})" aria-label="Saiba mais sobre a Over Store">Sobre Nós</button>
+    <button onclick="document.getElementById('testimonials').scrollIntoView({behavior: 'smooth'})" aria-label="Ver o que nossos clientes dizem">Depoimentos</button>
+    <button onclick="document.getElementById('faq').scrollIntoView({behavior: 'smooth'})" aria-label="Perguntas Frequentes">FAQ</button>
+    <button onclick="document.getElementById('planos').scrollIntoView({behavior: 'smooth'})" aria-label="Ver Planos de Acesso">Planos de Acesso</button>
+  </div>
+
+  <div id="welcome-card" class="info-card">
+    <p>Seja bem-vindo(a) à Over Store! Sua plataforma completa para **consultas online de dados**.</p>
+    <p>Com a gente, você tem acesso a **informações precisas e atualizadas** para suas necessidades pessoais e profissionais. Explore nossos serviços e planos de acesso abaixo!</p>
+    <p style="font-size: 0.9em; opacity: 0.7; margin-top: 20px;">*Dados das consultas são apenas exemplos. Para dados reais, adquira um de nossos planos.</p>
+  </div>
+
+  <div id="consulta-cpf" class="consulta-card" aria-live="polite">
+    <h3>Resultado da Consulta CPF</h3>
+    <p>• <strong>Nome:</strong> JOÃO DA SILVA S*****</p>
+    <p>• <strong>CPF:</strong> ***.456.789-**</p>
+    <p>• <strong>Data de Nascimento:</strong> 01/01/1990</p>
+    <p>• <strong>Situação Cadastral:</strong> Regular</p>
+    <p>• <strong>UF Emissão:</strong> SP</p>
+    <p>• <strong>Nome da Mãe:</strong> MARIA SILVA *****</p>
+    <p>• <strong>Renda Presumida:</strong> R$ 2.500,00</p>
+    <div class="botoes">
+      <button onclick="copiarTexto('consulta-cpf')">📋 Copiar</button>
+      <button onclick="baixarTexto('consulta-cpf')">⬇ Baixar TXT</button>
+      <button onclick="mensagemEmBreve()">📝 Gerar PDF</button>
+    </div>
+  </div>
+
+  <div id="consulta-telefone" class="consulta-card" aria-live="polite">
+    <h3>Resultado da Consulta Telefone</h3>
+    <p>• <strong>Número:</strong> (11) 9****-**78</p>
+    <p>• <strong>Operadora:</strong> Claro</p>
+    <p>• <strong>Tipo:</strong> Celular Pré-pago</p>
+    <p>• <strong>Localização:</strong> São Paulo - SP</p>
+    <p>• <strong>Titular Associado:</strong> JOÃO DA S. S*****</p>
+    <div class="botoes">
+      <button onclick="copiarTexto('consulta-telefone')">📋 Copiar</button>
+      <button onclick="baixarTexto('consulta-telefone')">⬇ Baixar TXT</button>
+      <button onclick="mensagemEmBreve()">📝 Gerar PDF</button>
+    </div>
+  </div>
+
+  <div id="consulta-cnh" class="consulta-card" aria-live="polite">
+    <h3>Resultado da Consulta CNH</h3>
+    <p>• <strong>Número de Registro:</strong> 1234*****00</p>
+    <p>• <strong>Nome Completo:</strong> MARIANA PEREIRA L***</p>
+    <p>• <strong>Categoria:</strong> B</p>
+    <p>• <strong>Validade:</strong> 10/06/2027</p>
+    <p>• <strong>Situação:</strong> Ativa</p>
+    <p>• <strong>Pontuação:</strong> 5 pontos (sem infrações graves recentes)</p>
+    <p>• <strong>UF Emissão:</strong> RJ</p>
+    <div class="botoes">
+      <button onclick="copiarTexto('consulta-cnh')">📋 Copiar</button>
+      <button onclick="baixarTexto('consulta-cnh')">⬇ Baixar TXT</button>
+      <button onclick="mensagemEmBreve()">📝 Gerar PDF</button>
+    </div>
+  </div>
+
+  <section id="about-us" class="about-us">
+    <h2>Sobre a Over Store</h2>
+    <div class="about-us-content">
+      <p>Na Over Store, nossa missão é simples: oferecer **acesso rápido e confiável** a informações essenciais. Entendemos a importância de dados precisos para decisões pessoais e profissionais.</p>
+      <p>Desde 2023, trabalhamos com as tecnologias mais avançadas para garantir que cada consulta seja eficiente e segura. Nosso compromisso é com a **transparência** e a **qualidade**, construindo uma relação de confiança com cada cliente.</p>
+      <ul>
+        <li>★ **Segurança de Dados:** Suas consultas são protegidas com criptografia de ponta.</li>
+        <li>★ **Precisão:** Nossos dados são continuamente atualizados para garantir a maior exatidão.</li>
+        <li>★ **Suporte Dedicado:** Nossa equipe está pronta para ajudar você em todas as etapas.</li>
+        <li>★ **Facilidade de Uso:** Interface intuitiva para que você encontre o que precisa rapidamente.</li>
+      </ul>
+      <p>Conte com a Over Store para ser seu parceiro em inteligência de dados.</p>
+    </div>
+  </section>
+
+  <section id="testimonials" class="testimonials">
+    <h2>O que dizem nossos clientes</h2>
+    <div class="testimonial-container">
+      <div class="testimonial-card">
+        <p>"Serviço impecável! A Over Store me ajudou a verificar informações cruciais para o meu negócio de forma rápida e segura. Superou minhas expectativas!"</p>
+        <span>— Ana C. (Empresária, SP)</span>
+      </div>
+      <div class="testimonial-card">
+        <p>"Plataforma intuitiva e os dados são incrivelmente precisos. O plano avançado foi o melhor investimento que fiz para minhas pesquisas. O suporte também é excelente!"</p>
+        <span>— Marcos R. (Investigador Particular, RJ)</span>
+      </div>
+      <div class="testimonial-card">
+        <p>"Precisava de uma consulta urgente e a Over Store entregou em segundos! Fiquei impressionado com a velocidade e a confiabilidade. Recomendo a todos!"</p>
+        <span>— Julia P. (Autônoma, MG)</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <h2>Perguntas Frequentes</h2>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFAQ(this)">Como as consultas funcionam?</div>
+      <div class="faq-answer">
+        <p>Nossas consultas são realizadas em tempo real através de uma base de dados atualizada. Você seleciona o tipo de consulta desejada (CPF, Telefone, CNH, etc.), e a plataforma retorna os dados disponíveis de forma rápida e organizada.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFAQ(this)">De onde vêm os dados das consultas?</div>
+      <div class="faq-answer">
+        <p>Os dados são coletados de fontes públicas e bases de dados legalmente acessíveis, garantindo a conformidade e a segurança das informações. **Não armazenamos seus dados pessoais após a consulta.**</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFAQ(this)">Quais métodos de pagamento são aceitos?</div>
+      <div class="faq-answer">
+        <p>Aceitamos **Pix, Boleto Bancário e Cartões de Crédito** (via plataforma segura) para a compra dos nossos planos. Todas as transações são criptografadas para sua segurança.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFAQ(this)">Posso testar o serviço antes de comprar um plano?</div>
+      <div class="faq-answer">
+        <p>Atualmente, não oferecemos um período de teste gratuito, mas nossos planos são acessíveis e você pode começar com o Plano Básico para experimentar a qualidade das nossas consultas. Os exemplos de consulta na página demonstram o formato dos resultados.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">Como faço para entrar em contato com o suporte?</div>
+        <div class="faq-answer">
+          <p>Você pode entrar em contato com nosso suporte exclusivo via <a href="https://t.me/OVERBANSUPORTE_BOT" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: bold;">Telegram (@OVERBANSUPORTE_BOT)</a>. Estamos disponíveis para ajudar com dúvidas e problemas.</p>
+          <p>Para dúvidas mais gerais ou informações comerciais, você pode nos enviar um e-mail para: <a href="mailto:overstore71@gmail.com" style="color: var(--accent); text-decoration: none; font-weight: bold;">overstore71@gmail.com</a></p>
+        </div>
+      </div>
+  </section>
+
+  <section id="planos" class="planos">
+    <h2>Escolha o Plano Ideal para Suas Necessidades</h2>
+    <div class="planos-container">
+      <div class="plano">
+        <h3>BÁSICO</h3>
+        <p class="price">R$ 30,00</p>
+        <ul>
+          <li>✓ Acesso a consultas essenciais (CPF, Telefone)</li>
+          <li>✓ Suporte via Telegram (horário comercial)</li>
+          <li>✓ Ideal para verificações rápidas e pontuais</li>
+          <li>✓ Pagamento mensal simplificado</li>
+        </ul>
+        <a href="https://t.me/OVERBANSUPORTE_BOT" target="_blank" rel="noopener noreferrer">Comprar Agora</a>
+      </div>
+      <div class="plano popular">
+        <div class="ribbon">Mais Popular</div>
+        <h3>AVANÇADO</h3>
+        <p class="price">R$ 38,00</p>
+        <ul>
+          <li>✓ **Consultas ilimitadas (todas as categorias)**</li>
+          <li>✓ Suporte prioritário 24/7</li>
+          <li>✓ Atualizações de dados semanais garantidas</li>
+          <li>✓ Garante tomadas de decisão mais seguras e informadas</li>
+        </ul>
+        <a href="https://t.me/OVERBANSUPORTE_BOT" target="_blank" rel="noopener noreferrer">Comprar Agora</a>
+      </div>
+      <div class="plano">
+        <h3>PREMIUM + BRINDE</h3>
+        <p class="price">R$ 40,00</p>
+        <ul>
+          <li>✓ Acesso total a todas as consultas</li>
+          <li>✓ **BRINDE:** Acesso exclusivo ao nosso Grupo VIP de dicas e estratégias!</li>
+          <li>✓ Prioridade máxima em novas ferramentas e funcionalidades</li>
+          <li>✓ Maximize seus resultados com inteligência de dados completa</li>
+        </ul>
+        <a href="https://t.me/OVERBANSUPORTE_BOT" target="_blank" rel="noopener noreferrer">Comprar Agora</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="imagem-card">
+    <img src="https://i.ibb.co/Z1KXPgxS/IMG-9413.jpg" alt="Logo da Over Store: Qualidade e Segurança em Consultas" />
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Over Store - Todos os direitos reservados.</p>
+    <p>
+      <a href="#policy" style="color: var(--accent); text-decoration: none;">Política de Privacidade</a> | 
+      <a href="#terms" style="color: var(--accent); text-decoration: none;">Termos de Serviço</a>
+    </p>
+    </footer>
+
+  <a href="https://t.me/OVERBANSUPORTE_BOT" target="_blank" class="telegram-float" aria-label="Fale conosco pelo Telegram">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/1200px-Telegram_logo.svg.png" alt="Telegram">
+  </a>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Função para mostrar o card de consulta selecionado e ativar o botão do menu
+    function mostrarConsulta(id) {
+      // Oculta o card de boas-vindas
+      document.getElementById('welcome-card').style.display = 'none';
+
+      // Oculta todos os cards de consulta e remove a classe 'active' para resetar a animação
+      document.querySelectorAll('.consulta-card').forEach(card => {
+        card.style.display = 'none';
+        card.classList.remove('active'); 
+      });
+      // Remove o estado 'active' de todos os botões do menu
+      document.querySelectorAll('.menu button').forEach(btn => btn.classList.remove('active'));
+
+      const card = document.getElementById(id);
+      const button = document.querySelector(`.menu button[onclick*="${id}"]`);
+      if (card && button) {
+        card.style.display = 'block'; // Exibe o card
+        card.classList.add('active'); // Adiciona a classe 'active' para disparar a animação
+        button.classList.add('active'); // Ativa o botão no menu
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Rola suavemente para o topo do card
+      }
+    }
+
+    // Função para copiar o texto de um card de consulta
+    function copiarTexto(id) {
+      const card = document.getElementById(id);
+      let textos = [];
+
+      // Seleciona apenas os parágrafos (<p>) dentro do card, que contêm os dados
+      card.querySelectorAll('p').forEach(p => {
+        textos.push(p.textContent.trim());
+      });
+
+      const textoParaCopiar = textos.filter(t => t.length > 0).join('\n');
+
+      navigator.clipboard.writeText(textoParaCopiar).then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Copiado!',
+          text: 'O texto da consulta foi copiado para a área de transferência.',
+          timer: 2000, // Alerta desaparece após 2 segundos
+          timerProgressBar: true,
+          showConfirmButton: false, // Não mostra botão de confirmação
+        });
+      }).catch(err => {
+        console.error('Erro ao copiar texto:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Não foi possível copiar o texto. Tente novamente.',
+          showConfirmButton: true,
+        });
+      });
+    }
+
+    // Função para baixar o texto de um card de consulta como arquivo TXT
+    function baixarTexto(id) {
+      const card = document.getElementById(id);
+      let textos = [];
+
+      // Seleciona os parágrafos para obter os dados
+      card.querySelectorAll('p').forEach(p => {
+        textos.push(p.textContent.trim());
+      });
+
+      const conteudo = textos.filter(t => t.length > 0).join('\n');
+      // Cria um Blob (objeto de dados imutável) com o conteúdo
+      const blob = new Blob([conteudo], {type: 'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob); // Cria uma URL para o Blob
+      const a = document.createElement('a'); // Cria um elemento <a> para o download
+      a.href = url;
+      a.download = `${id}_consulta.txt`; // Define o nome do arquivo
+      document.body.appendChild(a);
+      a.click(); // Simula o clique para iniciar o download
+      document.body.removeChild(a); // Remove o elemento <a>
+      URL.revokeObjectURL(url); // Libera a URL do Blob
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Download!',
+        text: 'Arquivo TXT baixado com sucesso.',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+    }
+
+    // Função para exibir mensagem de funcionalidade "em breve"
+    function mensagemEmBreve() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Em Breve!',
+        text: 'Esta funcionalidade está em desenvolvimento e será lançada em breve.',
+        showConfirmButton: true, // Mostra botão de confirmação
+      });
+    }
+
+    // Função para expandir/recolher itens da FAQ
+    function toggleFAQ(element) {
+      const answer = element.nextElementSibling;
+      element.classList.toggle('active');
+      if (answer.style.display === "block") {
+        answer.style.display = "none";
+      } else {
+        answer.style.display = "block";
+      }
+    }
+
+    // Garante que o card de boas-vindas seja exibido quando a página carregar
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('welcome-card').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
